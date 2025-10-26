@@ -1,0 +1,150 @@
+CREATE DATABASE SetOperators;
+
+USE SetOperators;
+
+CREATE TABLE ST1(
+	id INT,
+	fname VARCHAR(15)
+);
+
+INSERT INTO ST1 (id,fname)
+VALUES
+	 (1,'AA')
+	,(2,'BB')
+	,(3,'CC-Duplicate')
+	,(4,'DD')
+	,(3,'CC-Duplicate');
+
+SELECT * FROM ST1;
+
+CREATE TABLE ST2(
+	id INT,
+	fname VARCHAR(15)
+);
+
+INSERT INTO ST2 (id,fname)
+VALUES
+	 (1,'AAA')
+	,(2,'BBB')
+	,(3,'CC-Duplicate')
+	,(6,'DD')
+	,(3,'CC-Duplicate');
+
+SELECT * FROM ST2;
+
+--UNION ALL
+SELECT * FROM ST1
+UNION ALL
+SELECT * FROM ST2;
+
+--UNION
+SELECT * FROM ST1
+UNION
+SELECT * FROM ST2;
+
+--INTERSECT
+SELECT * FROM ST1
+INTERSECT
+SELECT * FROM ST2;
+
+--EXCEPT
+SELECT * FROM ST1
+EXCEPT
+SELECT * FROM ST2;
+
+--EXCEPT
+SELECT * FROM ST2
+EXCEPT
+SELECT * FROM ST1;
+
+--Rule:1 In-correct
+SELECT id,fname FROM ST1
+UNION ALL
+SELECT id FROM ST2
+
+--Rule:1 correct
+SELECT id,fname FROM ST1
+UNION ALL
+SELECT id,fname FROM ST2
+
+
+--Rule:2 In-correct
+SELECT id,fname FROM ST1
+UNION ALL
+SELECT fname,id FROM ST2
+
+--Rule:2 correct
+SELECT id,fname FROM ST1
+UNION ALL
+SELECT id,fname FROM ST2
+
+--ST2 data copy to ST3 
+SELECT id AS custId, fname AS custName INTO ST3 FROM ST2;
+
+SELECT * FROM ST3;
+
+---
+
+SELECT * FROM ST1;
+
+
+SELECT * FROM ST3;
+
+--
+
+--Rule:3 1st ST1 and 2nd ST3
+SELECT * FROM ST1
+UNION
+SELECT * FROM ST3;
+
+--Rule:3 1st ST3 and 2nd ST1
+SELECT * FROM ST3
+UNION
+SELECT * FROM ST1;
+
+--Rule:6  
+SELECT * FROM ST1 ORDER BY id
+UNION
+SELECT * FROM ST3;
+
+--Rule:6  In-correct
+SELECT id,fname FROM ST1 
+UNION
+SELECT custId,custName FROM ST3
+ORDER BY custId;
+
+
+--Rule:6  correct
+SELECT id,fname FROM ST1 
+UNION
+SELECT custId,custName FROM ST3
+ORDER BY id;
+
+----
+SELECT id FROM ST1
+SELECT id FROM ST2
+SELECT custId FROM ST3
+
+----
+--Example 1 Case: 1
+SELECT id FROM ST1
+EXCEPT
+SELECT id FROM ST2
+INTERSECT
+SELECT custId FROM ST3;
+
+
+--Example 1 Case: 2
+SELECT id FROM ST1
+EXCEPT
+(SELECT id FROM ST2 INTERSECT SELECT custId FROM ST3);
+
+
+--Example 2
+(SELECT id FROM ST1
+ EXCEPT
+ SELECT id FROM ST2)
+INTERSECT
+SELECT custId FROM ST3;
+
+
